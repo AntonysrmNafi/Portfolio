@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nafi — Full Stack & Blockchain Developer</title>
+<meta name="description" content="Portfolio of Nafi, a Full Stack and Blockchain Developer working with TypeScript, Solidity, Rust and Python.">
+<script>document.documentElement.classList.remove('no-js');</script>
+
+<!-- Fonts: Space Grotesk for display, Inter for body text, JetBrains Mono for code-like labels -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+<!-- GSAP: powers scroll-triggered reveals and magnetic button motion -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+  /* ============ DESIGN TOKENS ============ */
+  :root{
+    --bg:        #E9E4DA;   /* warm linen background */
+    --surface:   #FFFFFF;   /* card / block surface */
+    --ink:       #1A1A2E;   /* primary text, near navy-black */
+    --ink-soft:  #5B5B6B;   /* secondary text */
+    --accent:    #E85D4D;   /* coral, used sparingly for highlights */
+    --accent-2:  #3E6259;   /* deep teal, used for tags / links */
+    --line:      #CBC3B4;   /* hairline borders */
+
+    --font-display: "Space Grotesk", sans-serif;
+    --font-body:    "Inter", sans-serif;
+    --font-mono:    "JetBrains Mono", monospace;
+
+    --nav-h: 64px;
+    --maxw: 1100px;
+
+    --radius: 14px;
+    --transition: 200ms ease;
+  }
+
+  /* ============ RESET & BASE ============ */
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html{
+    scroll-behavior: smooth;
+    scroll-padding-top: var(--nav-h); /* offset for sticky nav when jumping to anchors */
+  }
+
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* ============ PREMIUM AMBIENT BACKGROUND ============
+     Layered mesh gradient (multiple soft color blobs drifting at
+     different speeds) plus a subtle noise/grain overlay for texture.
+     Everything stays within the existing palette, just adds depth.
+     Fixed so it stays put while the page scrolls; pure CSS, so this
+     works even before JS or GSAP has loaded. */
+  .ambient{
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* Base mesh wash: a faint multi-point gradient sitting behind the
+     drifting blobs, giving the background more dimensionality than
+     a flat fill even where no blob currently overlaps. */
+  .ambient::before{
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(at 20% 15%, rgba(232, 93, 77, 0.06) 0px, transparent 50%),
+      radial-gradient(at 80% 10%, rgba(62, 98, 89, 0.07) 0px, transparent 50%),
+      radial-gradient(at 50% 90%, rgba(232, 93, 77, 0.05) 0px, transparent 55%),
+      radial-gradient(at 90% 80%, rgba(62, 98, 89, 0.06) 0px, transparent 50%);
+  }
+
+  .ambient__blob{
+    position: absolute;
+    width: 46vw;
+    height: 46vw;
+    max-width: 620px;
+    max-height: 620px;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.35;
+    will-change: transform;
+  }
+
+  .ambient__blob--1{
+    top: -10%;
+    left: -8%;
+    background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+    animation: drift1 22s ease-in-out infinite;
+  }
+
+  .ambient__blob--2{
+    bottom: -14%;
+    right: -10%;
+    background: radial-gradient(circle, var(--accent-2) 0%, transparent 70%);
+    animation: drift2 26s ease-in-out infinite;
+  }
+
+  /* Third, smaller blob mid-page for extra depth on long scrolls */
+  .ambient__blob--3{
+    top: 42%;
+    left: 38%;
+    width: 32vw;
+    height: 32vw;
+    max-width: 420px;
+    max-height: 420px;
+    opacity: 0.22;
+    background: radial-gradient(circle, var(--ink) 0%, transparent 70%);
+    animation: drift3 30s ease-in-out infinite;
+  }
+
+  @keyframes drift1{
+    0%, 100%{ transform: translate(0, 0) scale(1); }
+    50%{ transform: translate(6vw, 8vh) scale(1.12); }
+  }
+
+  @keyframes drift2{
+    0%, 100%{ transform: translate(0, 0) scale(1); }
+    50%{ transform: translate(-5vw, -6vh) scale(1.08); }
+  }
+
+  @keyframes drift3{
+    0%, 100%{ transform: translate(0, 0) scale(1); }
+    50%{ transform: translate(-4vw, 5vh) scale(1.15); }
+  }
+
+  /* Subtle film-grain noise overlay: a tiny tiled SVG turbulence pattern
+     at very low opacity. This is the detail that reads as "premium" up
+     close, breaking up flat color fields without being visible as a
+     distinct texture unless you look for it. */
+  .grain{
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.035;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 160px 160px;
+  }
+
+  /* Dragon-scale texture: a tiled fish-scale / overlapping-arc pattern,
+     drawn with thin strokes at very low opacity so it reads as a fine
+     engraved texture rather than a literal illustration. Sits above the
+     color blobs but under the readable content. Two offset rows of arcs
+     tile seamlessly into a continuous scale pattern across the page. */
+  .scales{
+    position: fixed;
+    inset: -2% -2%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='72' viewBox='0 0 84 72'%3E%3Cg fill='none' stroke='%231A1A2E' stroke-width='1.1'%3E%3Cpath d='M0 36 A21 21 0 0 1 42 36 A21 21 0 0 1 84 36'/%3E%3Cpath d='M0 0 A21 21 0 0 1 42 0 A21 21 0 0 1 84 0'/%3E%3Cpath d='M0 72 A21 21 0 0 1 42 72 A21 21 0 0 1 84 72'/%3E%3Cpath d='M-21 36 A21 21 0 0 1 21 36 A21 21 0 0 1 63 36'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 84px 72px;
+    will-change: transform;
+  }
+
+  @media (max-width: 640px){
+    /* Smaller tile on phones keeps the scale density visually consistent
+       with desktop instead of looking oversized on a narrow viewport */
+    .scales{ background-size: 56px 48px; opacity: 0.045; }
+  }
+
+  main, header, footer{ position: relative; z-index: 1; }
+
+  /* ============ CUSTOM CURSOR ============
+     Desktop-only (see media query below); a small dot plus a
+     trailing ring that eases toward the pointer for a "maximum"
+     feel without being heavy. Disabled on touch devices and for
+     users who prefer reduced motion. */
+  .cursor-dot, .cursor-ring{
+    position: fixed;
+    top: 0;
+    left: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+  }
+
+  .cursor-dot{
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+  }
+
+  .cursor-ring{
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid var(--accent-2);
+    transition: width 200ms ease, height 200ms ease, border-color 200ms ease, opacity 200ms ease;
+  }
+
+  .cursor-ring.is-active{
+    width: 48px;
+    height: 48px;
+    border-color: var(--accent);
+  }
+
+  @media (max-width: 860px), (hover: none){
+    .cursor-dot, .cursor-ring{ display: none; }
+  }
+
+  body.has-custom-cursor, body.has-custom-cursor a, body.has-custom-cursor button{
+    cursor: none;
+  }
+
+  img{ max-width:100%; display:block; }
+
+  a{ color: var(--accent-2); text-decoration: none; }
+  a:hover{ text-decoration: underline; }
+
+  /* Premium link micro-interaction: an animated underline that grows from
+     the left rather than the abrupt default underline, used for inline
+     text links inside paragraphs (project links, footer links use their
+     own distinct hover treatment already). */
+  .block-card__links a,
+  .timeline__item a{
+    position: relative;
+    text-decoration: none;
+  }
+  .block-card__links a::after,
+  .timeline__item a::after{
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 1px;
+    background: currentColor;
+    transition: width 280ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .block-card__links a:hover::after,
+  .timeline__item a:hover::after{
+    width: 100%;
+  }
+
+  /* Visible focus state for keyboard users (accessibility) */
+  a:focus-visible,
+  button:focus-visible{
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  ul{ list-style:none; }
+
+  .container{
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .section{
+    padding: 96px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .section:last-of-type{ border-bottom: none; }
+
+  .eyebrow{
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .section h2{
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(28px, 4vw, 40px);
+    margin-bottom: 40px;
+  }
+
+  /* ============ CHAIN NAV (signature element) ============
+     A horizontal row of "blocks" linked by a line, representing
+     the page sections like blocks in a chain. The active section
+     gets its node highlighted via IntersectionObserver in JS. */
+  .chain-nav{
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: var(--nav-h);
+    background: rgba(233, 228, 218, 0.72);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border-bottom: 1px solid rgba(203, 195, 180, 0.6);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 8px 24px -16px rgba(26, 26, 46, 0.12);
+    transition: box-shadow 300ms ease, background 300ms ease;
+  }
+
+  .chain-nav__inner{
+    max-width: var(--maxw);
+    margin: 0 auto;
+    height: 100%;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .chain{
+    position: relative;
+    display: flex;
+    gap: clamp(8px, 2vw, 28px);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .chain::-webkit-scrollbar{ display:none; }
+
+  /* connecting line drawn behind the nodes */
+  .chain::before{
+    content:"";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: 50%;
+    height: 2px;
+    background: var(--line);
+    transform: translateY(-50%);
+    z-index: 0;
+  }
+
+  .chain__link{
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 4px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color var(--transition);
+  }
+  .chain__link:hover{ color: var(--ink); text-decoration:none; }
+
+  .chain__node{
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    transition: border-color var(--transition), color var(--transition);
+  }
+
+  .chain__label{
+    display: none; /* shown on wider screens */
+  }
+
+  /* active section state, toggled via JS */
+  .chain__link.is-active{ color: var(--ink); }
+  .chain__link.is-active .chain__node{
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(232, 93, 77, 0.15);
+  }
+
+  @media (min-width: 700px){
+    .chain__label{ display:inline; }
+  }
+
+  /* Mobile-only: the header content (brand + 6 nodes + button) was wider than
+     small phone screens, which squeezed the chain nodes, pushed the Hire
+     button past the right edge, and left tiny artifacts from the connecting
+     line poking around each circle. This block only fires below 700px;
+     desktop is untouched. */
+  @media (max-width: 699px){
+    .chain-nav__inner{ padding: 0 16px; gap: 10px; }
+
+    .chain{ gap: 5px; }
+    .chain::before{ display: none; }
+    .chain__link{ flex-shrink: 0; padding: 6px 1px; }
+    .chain__node{ width: 20px; height: 20px; font-size: 9px; overflow: hidden; }
+
+    .btn--hire{ flex-shrink: 0; padding: 6px 10px; font-size: 12px; }
+  }
+
+  /* ============ HERO ============ */
+  .hero{
+    padding-top: 120px;
+    padding-bottom: 96px;
+  }
+
+  .hero__grid{
+    display: grid;
+    gap: 32px;
+  }
+
+  .hero h1{
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(40px, 8vw, 72px);
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+
+  .hero__role{
+    font-family: var(--font-mono);
+    font-size: clamp(16px, 2.5vw, 20px);
+    color: var(--ink-soft);
+    min-height: 1.6em; /* reserve space so layout doesn't jump while typing */
+  }
+
+  .hero__role .cursor{
+    display: inline-block;
+    width: 2px;
+    background: var(--accent);
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink{
+    50%{ opacity: 0; }
+  }
+
+  .hero__lede{
+    max-width: 60ch;
+    color: var(--ink-soft);
+    margin: 24px 0 32px;
+    font-size: 18px;
+  }
+
+  .hero__actions{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+  }
+
+  /* Buttons: high-contrast pairs only (ink/bg), accent used for border accents */
+  .btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 24px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 15px;
+    transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1), background 320ms cubic-bezier(0.16, 1, 0.3, 1), color 320ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 320ms cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+  }
+  .btn:hover{ text-decoration:none; transform: translateY(-2px); }
+  .btn:active{ transform: translateY(0) scale(0.97); transition-duration: 120ms; }
+
+  /* magnetic-eligible elements get a soft glow on hover so the
+     pointer-follow motion (added via JS) reads as intentional */
+  .magnetic{ will-change: transform; }
+  .magnetic:hover{ box-shadow: 0 8px 28px rgba(232, 93, 77, 0.25); }
+
+  .btn--primary{
+    background: var(--ink);
+    color: var(--bg);
+  }
+  .btn--primary:hover{ background: var(--accent); color: var(--surface); }
+
+  .btn--ghost{
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--ink);
+  }
+  .btn--ghost:hover{ border-color: var(--accent); color: var(--accent); }
+
+  .btn--icon svg{
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .status{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 28px;
+  }
+
+  .status__dot{
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-2);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse{
+    0%, 100%{ opacity: 1; }
+    50%{ opacity: 0.35; }
+  }
+
+  /* ============ ABOUT ============ */
+  .about__grid{
+    display: grid;
+    gap: 48px;
+    grid-template-columns: 1fr;
+  }
+
+  .about__text p{ margin-bottom: 16px; max-width: 65ch; }
+  .about__text p:last-child{ margin-bottom: 0; }
+
+  /* ============ SKILLS (stack accordion) ============ */
+  .stack{
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 20px 48px -20px rgba(26, 26, 46, 0.14);
+  }
+
+  .stack-layer{ border-bottom: 1px solid var(--line); }
+  .stack-layer:last-child{ border-bottom: none; }
+
+  .stack-trigger{
+    width: 100%;
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    background: transparent;
+    border: none;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: background var(--transition);
+  }
+  .stack-trigger:hover,
+  .stack-trigger:focus-visible{ background: var(--bg); }
+
+  .stack-index{
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent-2);
+    letter-spacing: 0.08em;
+  }
+
+  .stack-heading{ display: flex; flex-direction: column; gap: 2px; }
+  .stack-heading strong{
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 600;
+  }
+  .stack-heading span{
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+
+  .stack-chevron{
+    width: 18px; height: 18px;
+    color: var(--ink-soft);
+    transition: transform 250ms ease;
+    flex-shrink: 0;
+  }
+  .stack-trigger[aria-expanded="true"] .stack-chevron{ transform: rotate(180deg); }
+
+  .stack-panel{
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 300ms ease;
+  }
+  .stack-panel-inner{ overflow: hidden; min-height: 0; }
+  .stack-trigger[aria-expanded="true"] + .stack-panel{ grid-template-rows: 1fr; }
+
+  .stack-tags{
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 24px 20px calc(90px + 16px);
+  }
+
+  @media (max-width: 560px){
+    .stack-trigger{ grid-template-columns: 48px 1fr auto; }
+    .stack-tags{ padding-left: calc(48px + 16px); }
+  }
+
+  .stack-tags li{
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 5px 12px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--ink);
+  }
+
+  /* keep .chip for project cards (still used there) */
+  .chip{
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--ink);
+  }
+
+  /* ============ PROJECTS ============ */
+  .projects__grid{
+    display: grid;
+    gap: 24px;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 760px){
+    .projects__grid{ grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .block-card{
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 350ms cubic-bezier(0.16, 1, 0.3, 1), transform 350ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 350ms cubic-bezier(0.16, 1, 0.3, 1);
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .block-card:hover{
+    border-color: var(--accent);
+    box-shadow: 0 24px 48px -16px rgba(26, 26, 46, 0.2);
+  }
+
+  .block-card__meta{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 16px;
+  }
+
+  .block-card__meta .hash{ color: var(--accent-2); }
+
+  .block-card h3{
+    font-family: var(--font-display);
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+
+  .block-card p{
+    color: var(--ink-soft);
+    margin-bottom: 20px;
+    flex-grow: 1;
+  }
+
+  .block-card__tags{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .block-card__tags .chip{
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .block-card__links{
+    display: flex;
+    gap: 20px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  /* ============ JOURNEY (vertical chain timeline) ============ */
+  .timeline{
+    position: relative;
+    max-width: 700px;
+  }
+
+  .timeline::before{
+    content:"";
+    position: absolute;
+    left: 9px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: var(--line);
+  }
+
+  .timeline__item{
+    position: relative;
+    padding-left: 36px;
+    margin-bottom: 32px;
+  }
+  .timeline__item:last-child{ margin-bottom: 0; }
+
+  .timeline__item::before{
+    content:"";
+    position: absolute;
+    left: 0;
+    top: 4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--accent-2);
+  }
+
+  .timeline__item.is-current::before{
+    border-color: var(--accent);
+  }
+
+  .timeline__meta{
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+
+  .timeline__item h3{
+    font-family: var(--font-display);
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .timeline__item p{ color: var(--ink-soft); }
+
+  /* ============ SUPPORT ============ */
+  .support__body{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  .support__body p{ max-width: 60ch; color: var(--ink-soft); font-size: 18px; }
+
+  /* ============ CONTACT ============ */
+  .contact__hero{
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: var(--radius);
+    padding: clamp(40px, 8vw, 80px) clamp(28px, 6vw, 64px);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 30px 60px -24px rgba(26, 26, 46, 0.18);
+    transition: transform 400ms ease, box-shadow 400ms ease;
+  }
+  .contact__hero:hover{
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 36px 72px -24px rgba(26, 26, 46, 0.22);
+  }
+
+  /* layered gradient wash behind the card, matching the palette */
+  .contact__hero::before{
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% -10%, rgba(232, 93, 77, 0.12) 0%, transparent 55%),
+      radial-gradient(ellipse at 90% 110%, rgba(62, 98, 89, 0.10) 0%, transparent 55%);
+    pointer-events: none;
+  }
+
+  .contact__hero h2{
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(28px, 5vw, 48px);
+    margin-bottom: 12px;
+    position: relative;
+  }
+
+  .contact__hero p{
+    color: var(--ink-soft);
+    max-width: 52ch;
+    margin: 0 auto 32px;
+    font-size: 18px;
+    position: relative;
+  }
+
+  .contact__cta{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--ink);
+    color: var(--bg);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 17px;
+    padding: 16px 36px;
+    border-radius: 999px;
+    text-decoration: none;
+    position: relative;
+    transition: background 320ms cubic-bezier(0.16, 1, 0.3, 1), transform 320ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 320ms cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 16px 32px -12px rgba(26, 26, 46, 0.3);
+  }
+  .contact__cta:hover{
+    background: var(--accent);
+    color: var(--surface);
+    transform: translateY(-2px);
+    text-decoration: none;
+    box-shadow: 0 20px 40px -12px rgba(232, 93, 77, 0.4);
+  }
+  .contact__cta:active{
+    transform: translateY(0) scale(0.97);
+    transition-duration: 120ms;
+  }
+
+  .contact__links{
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    margin-top: 32px;
+    position: relative;
+  }
+  .contact__links a{
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+  .contact__links a:hover{ color: var(--accent-2); text-decoration: none; }
+
+  /* ============ HIRE ME BUTTON (nav) ============ */
+  .btn--hire{
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 13px;
+    background: var(--ink);
+    color: var(--bg);
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background var(--transition), color var(--transition), transform var(--transition);
+  }
+  .btn--hire:hover{
+    background: var(--accent);
+    color: var(--surface);
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+
+  /* ============ FOOTER ============ */
+  footer{
+    padding: 32px 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+
+  .footer__inner{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+  }
+
+  .footer__socials{
+    display: flex;
+    gap: 18px;
+  }
+
+  .footer__socials a{
+    display: inline-flex;
+    color: var(--ink-soft);
+    transition: color var(--transition), transform var(--transition);
+  }
+  .footer__socials a:hover{
+    color: var(--accent);
+    transform: translateY(-2px);
+    text-decoration: none;
+  }
+  .footer__socials svg{
+    width: 18px;
+    height: 18px;
+  }
+
+  @media (min-width: 600px){
+    .footer__inner{
+      flex-direction: row;
+      justify-content: space-between;
+      text-align: left;
+    }
+  }
+
+  /* ============ SCROLL REVEAL ============ */
+  .reveal{
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 600ms ease, transform 600ms ease;
+  }
+  .reveal.is-visible{
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Lighter variant for small inline elements: eyebrows, headings, social icons */
+  .reveal-fade{
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 500ms ease, transform 500ms ease;
+  }
+  .reveal-fade.is-visible{
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Staggered children inside a .reveal container (cards, timeline items,
+     skill layers); JS adds is-visible + a per-item transition-delay */
+  .reveal > .block-card,
+  .reveal > .timeline__item,
+  .reveal > .stack-layer{
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 550ms ease, transform 550ms ease;
+  }
+  .reveal > .block-card.is-visible,
+  .reveal > .timeline__item.is-visible,
+  .reveal > .stack-layer.is-visible{
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* If JavaScript fails to run at all (blocked script, offline CDN, etc.),
+     this is the hard guarantee that content is never left invisible:
+     a no-js fallback class added by an inline script at the very top
+     of <body>, before any other rendering. See bootstrap script below. */
+  .no-js .reveal,
+  .no-js .reveal-fade,
+  .no-js .reveal > .block-card,
+  .no-js .reveal > .timeline__item,
+  .no-js .reveal > .stack-layer{
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* Respect users who prefer reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior: auto; }
+    .reveal, .reveal-fade{ opacity: 1; transform: none; transition: none; }
+    .reveal > .block-card, .reveal > .timeline__item, .reveal > .stack-layer{ opacity: 1; transform: none; transition: none; }
+    .status__dot{ animation: none; }
+    .hero__role .cursor{ animation: none; }
+    .block-card, .contact__cta, .btn, .btn--hire, .contact__hero, .chain-nav{ transition: none; }
+    .ambient__blob{ animation: none; }
+    .cursor-dot, .cursor-ring{ display: none; }
+    body.has-custom-cursor{ cursor: auto; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Ambient drifting gradient blobs, purely decorative -->
+  <div class="ambient" aria-hidden="true">
+    <div class="ambient__blob ambient__blob--1"></div>
+    <div class="ambient__blob ambient__blob--2"></div>
+    <div class="ambient__blob ambient__blob--3"></div>
+  </div>
+  <div class="scales" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- Custom cursor (desktop only, see JS for setup) -->
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
+
+  <!-- ============ CHAIN NAV ============ -->
+  <header class="chain-nav">
+    <div class="chain-nav__inner">
+      <nav aria-label="Page sections">
+        <ol class="chain">
+          <li><a href="#home"     class="chain__link" data-section="home">    <span class="chain__node">01</span><span class="chain__label">Home</span></a></li>
+          <li><a href="#about"    class="chain__link" data-section="about">   <span class="chain__node">02</span><span class="chain__label">About</span></a></li>
+          <li><a href="#skills"   class="chain__link" data-section="skills">  <span class="chain__node">03</span><span class="chain__label">Skills</span></a></li>
+          <li><a href="#projects" class="chain__link" data-section="projects"><span class="chain__node">04</span><span class="chain__label">Projects</span></a></li>
+          <li><a href="#journey"  class="chain__link" data-section="journey"> <span class="chain__node">05</span><span class="chain__label">Journey</span></a></li>
+          <li><a href="#support"  class="chain__link" data-section="support"> <span class="chain__node">06</span><span class="chain__label">Support</span></a></li>
+          <li><a href="#contact"  class="chain__link" data-section="contact"> <span class="chain__node">07</span><span class="chain__label">Contact</span></a></li>
+        </ol>
+      </nav>
+      <a href="mailto:antonysrm@tutamail.com" class="btn--hire magnetic" aria-label="Hire Me">Hire Me</a>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ============ HERO ============ -->
+    <section id="home" class="hero">
+      <div class="container hero__grid">
+        <div>
+          <h1>Hey, I'm Antonysrm Nafi.</h1>
+          <p class="hero__role" id="heroRole" aria-live="polite"></p>
+          <p class="hero__lede">
+            Passionate about solving complex problems. I'm a Full Stack Blockchain
+            Developer building impactful solutions at my company, <strong>Blockveil</strong>, while
+            also helping other companies and clients bring their ideas to life.
+          </p>
+          <div class="hero__actions">
+            <a href="#journey" class="btn btn--primary magnetic">View Experience</a>
+            <a href="https://github.com/AntonysrmNafi" target="_blank" rel="noopener noreferrer" class="btn btn--ghost btn--icon magnetic">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55v-1.93c-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.75 2.69 1.25 3.35.96.1-.75.4-1.25.73-1.54-2.55-.29-5.23-1.27-5.23-5.67 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.18-1.49 3.14-1.18 3.14-1.18.63 1.58.24 2.75.12 3.04.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.38-5.25 5.66.41.36.78 1.06.78 2.15v3.19c0 .3.21.66.79.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+              Core Profile
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ABOUT ============ -->
+    <section id="about" class="section">
+      <div class="container">
+        <span class="eyebrow">02 / About</span>
+        <h2>A bit about me</h2>
+        <div class="about__grid reveal">
+          <div class="about__text">
+            <p>
+              Passionate about solving critical problems and building something new
+              every day.
+            </p>
+            <p>
+              My journey started back in 2020 in the web sector. I've worked part-time
+              with various crypto and blockchain companies in moderation, technical,
+              and admin roles, which gave me a deep, inside-out understanding of the
+              blockchain ecosystem.
+            </p>
+            <p>
+              In 2024, I fully transitioned into web development. Since then, I've
+              successfully built and shipped Telegram bots, cross-platform apps for
+              Android, iOS, macOS, and Windows, and various custom tools.
+            </p>
+            <p>
+              Now, I'm building my own company, Blockveil, while also working as a
+              Junior Developer at two blockchain companies, helping them build secure
+              and scalable products.
+            </p>
+            <p>
+              I love turning complex ideas into real, impactful solutions.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SKILLS ============ -->
+    <section id="skills" class="section">
+      <div class="container">
+        <span class="eyebrow">03 / Skills</span>
+        <h2>The stack, layer by layer</h2>
+        <p style="color:var(--ink-soft);margin-bottom:32px;max-width:60ch;">Click a layer to see the tools and languages I use there.</p>
+
+        <div class="stack reveal">
+
+          <div class="stack-layer">
+            <button class="stack-trigger" aria-expanded="false">
+              <span class="stack-index">01</span>
+              <span class="stack-heading">
+                <strong>Client</strong>
+                <span>What people see and interact with</span>
+              </span>
+              <svg class="stack-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="stack-panel">
+              <div class="stack-panel-inner">
+                <ul class="stack-tags">
+                  <li>HTML</li><li>CSS</li><li>JavaScript</li><li>React</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="stack-layer">
+            <button class="stack-trigger" aria-expanded="false">
+              <span class="stack-index">02</span>
+              <span class="stack-heading">
+                <strong>Server</strong>
+                <span>Business logic, APIs, and automation</span>
+              </span>
+              <svg class="stack-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="stack-panel">
+              <div class="stack-panel-inner">
+                <ul class="stack-tags">
+                  <li>Python</li><li>Node.js</li><li>REST APIs</li><li>Express</li><li>Telegram Bot API</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="stack-layer">
+            <button class="stack-trigger" aria-expanded="false">
+              <span class="stack-index">03</span>
+              <span class="stack-heading">
+                <strong>Blockchain</strong>
+                <span>Smart contracts and on-chain logic</span>
+              </span>
+              <svg class="stack-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="stack-panel">
+              <div class="stack-panel-inner">
+                <ul class="stack-tags">
+                  <li>Solidity</li><li>Rust</li><li>Ethereum</li><li>Ethers.js</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="stack-layer">
+            <button class="stack-trigger" aria-expanded="false">
+              <span class="stack-index">04</span>
+              <span class="stack-heading">
+                <strong>Data</strong>
+                <span>Where information lives and is queried</span>
+              </span>
+              <svg class="stack-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="stack-panel">
+              <div class="stack-panel-inner">
+                <ul class="stack-tags">
+                  <li>SQL</li><li>PostgreSQL</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="stack-layer">
+            <button class="stack-trigger" aria-expanded="false">
+              <span class="stack-index">05</span>
+              <span class="stack-heading">
+                <strong>Tooling</strong>
+                <span>Keeping everything running smoothly</span>
+              </span>
+              <svg class="stack-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="stack-panel">
+              <div class="stack-panel-inner">
+                <ul class="stack-tags">
+                  <li>Git &amp; GitHub</li><li>Bash / Shell</li><li>Docker</li><li>Linux</li><li>VS Code</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PROJECTS ============ -->
+    <section id="projects" class="section">
+      <div class="container">
+        <span class="eyebrow">04 / Projects</span>
+        <h2>My Projects</h2>
+        <div class="projects__grid reveal">
+
+          <article class="block-card">
+            <div class="block-card__meta">
+              <span class="hash">BLOCK #001</span>
+              <span>11 December 2025</span>
+            </div>
+            <h3>BlockVeil (AES-256 Encryption Tool)</h3>
+            <p>
+              A simple tool for locking up a piece of text so only the right person can
+              read it. Most encryption tools online quietly send your text to a server
+              first, this one never does, everything happens right inside your browser
+              and nothing ever leaves your device. Lock it with a password or with a
+              secret key, watch your password strength as you type, and the result
+              stays blurred until you choose to reveal it. Leave it alone for five
+              minutes and it wipes itself clean, just to be safe.
+            </p>
+            <div class="block-card__tags">
+              <span class="chip">JavaScript</span>
+              <span class="chip">Web Crypto API</span>
+              <span class="chip">AES-256-GCM</span>
+            </div>
+            <div class="block-card__links">
+              <a href="https://github.com/BlockVeilBuild/blockveil-aes-tool" target="_blank" rel="noopener noreferrer">GitHub</a>
+            </div>
+          </article>
+
+          <article class="block-card">
+            <div class="block-card__meta">
+              <span class="hash">BLOCK #002</span>
+              <span>1 April 2026</span>
+            </div>
+            <h3>BlockVeil Wallet Generator</h3>
+            <p>
+              A Telegram bot that creates crypto wallets in bulk, hundreds or thousands
+              at once, the proper way: each one is generated using the same standard
+              method real wallets use, not random guesswork. The results come back as
+              a CSV file or as plain messages in chat, ready to use. Getting in needs an
+              access code, usage runs on a simple balance system, and every wallet
+              phrase is encrypted before it's stored anywhere. There's also a full admin
+              side behind it for issuing codes and keeping track of everything. This one
+              stays private though, it was never meant to go public.
+            </p>
+            <div class="block-card__tags">
+              <span class="chip">Python</span>
+              <span class="chip">eth-account</span>
+              <span class="chip">AES-256-GCM</span>
+            </div>
+            <div class="block-card__links">
+              <span style="color:var(--ink-soft);">Private project, not publicly released</span>
+            </div>
+          </article>
+
+          <article class="block-card">
+            <div class="block-card__meta">
+              <span class="hash">BLOCK #003</span>
+              <span>1 May 2026</span>
+            </div>
+            <h3>BlockVeil Authenticator</h3>
+            <p>
+              A Telegram bot that keeps your two-factor authentication codes safe and
+              easy to reach, right inside Telegram. Every account gets its own private
+              vault, locked behind a password and a master key that even the server
+              never sees in plain form. On top of that: encrypted offline backups, a way
+              to share one code with someone for a few minutes without ever revealing the
+              real secret, and a full admin side with premium plans and crypto payments
+              built in.
+            </p>
+            <div class="block-card__tags">
+              <span class="chip">Python</span>
+              <span class="chip">SQLite</span>
+              <span class="chip">AES-256-GCM</span>
+            </div>
+            <div class="block-card__links">
+              <a href="https://antonysrmnafi.free.nf/" target="_blank" rel="noopener noreferrer">Live Demo</a>
+            </div>
+          </article>
+
+          <article class="block-card">
+            <div class="block-card__meta">
+              <span class="hash">BLOCK #004</span>
+              <span>1 May 2026</span>
+            </div>
+            <h3>BlockVeil QR Scanner &amp; Generator</h3>
+            <p>
+              A Telegram bot that turns your chat into a quick QR and barcode reader,
+              no commands needed, just send a photo or tap a button. It reads almost
+              anything, wifi logins, contact cards, crypto addresses, payment codes,
+              and lays the result out clearly instead of just dumping raw text. Short
+              links get expanded and checked for phishing before you tap them. It can
+              also turn any text into a QR code on the spot, and keeps your scan
+              history encrypted and only in memory, nothing ever gets written to disk.
+            </p>
+            <div class="block-card__tags">
+              <span class="chip">Python</span>
+              <span class="chip">OpenCV</span>
+              <span class="chip">AES-256-GCM</span>
+            </div>
+            <div class="block-card__links">
+              <a href="https://antonysrmnafi.free.nf/" target="_blank" rel="noopener noreferrer">Live Demo</a>
+            </div>
+          </article>
+
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ JOURNEY ============ -->
+    <section id="journey" class="section">
+      <div class="container">
+        <span class="eyebrow">05 / Journey</span>
+        <h2>My learning path</h2>
+        <div class="timeline reveal">
+
+          <div class="timeline__item">
+            <div class="timeline__meta">Completed</div>
+            <h3>Web Development Fundamentals (Level 1)</h3>
+            <p>Programming Hero course covering HTML, CSS, JavaScript and TypeScript basics.</p>
+          </div>
+
+          <div class="timeline__item">
+            <div class="timeline__meta">Completed</div>
+            <h3>Backend &amp; Database Development (Level 2)</h3>
+            <p>Programming Hero course covering Node.js, REST APIs and SQL databases.</p>
+          </div>
+
+          <div class="timeline__item is-current">
+            <div class="timeline__meta">In Progress</div>
+            <h3>Rust Programming</h3>
+            <p>Learning Rust through Boris Paskhaver's "Learn to Code with Rust" on Udemy.</p>
+          </div>
+
+          <div class="timeline__item">
+            <div class="timeline__meta">Next</div>
+            <h3>Solidity &amp; Smart Contracts</h3>
+            <p>Diving into Ethereum smart contract development with Solidity, Hardhat and Foundry.</p>
+          </div>
+
+          <div class="timeline__item">
+            <div class="timeline__meta">Goal</div>
+            <h3>Full Stack Blockchain Developer</h3>
+            <p>Combining backend, frontend and smart contract skills to build complete dApps.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SUPPORT ============ -->
+    <section id="support" class="section">
+      <div class="container">
+        <span class="eyebrow">06 / Support</span>
+        <h2>Support my work</h2>
+        <div class="support__body reveal">
+          <p>
+            Everything under BlockVeil is built and maintained independently. If one
+            of these tools saved you time or kept your accounts safer, you can back
+            the work and help keep it going.
+          </p>
+          <a href="support" class="btn btn--primary btn--icon magnetic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            Support my work
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
+    <section id="contact" class="section">
+      <div class="container">
+        <span class="eyebrow">07 / Contact</span>
+        <div class="contact__hero reveal">
+          <h2>Let's build something great.</h2>
+          <p>Got a project idea or need a full stack / blockchain developer? Drop me a line.</p>
+          <a href="mailto:antonysrm@tutamail.com" class="contact__cta magnetic">
+            Say Hello &rarr;
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container footer__inner">
+      <div class="footer__socials">
+        <a href="https://www.linkedin.com/in/antonysmnafi/" target="_blank" rel="noopener noreferrer" title="LinkedIn" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 0h-14c-2.76 0-5 2.24-5 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5v-14c0-2.76-2.24-5-5-5zm-11 19h-3v-9h3v9zm-1.5-10.27c-.97 0-1.75-.79-1.75-1.76s.78-1.76 1.75-1.76 1.75.79 1.75 1.76-.78 1.76-1.75 1.76zm13.5 10.27h-3v-4.5c0-1.07-.02-2.45-1.5-2.45-1.5 0-1.73 1.17-1.73 2.37v4.58h-3v-9h2.88v1.23h.04c.4-.75 1.38-1.54 2.84-1.54 3.04 0 3.6 2 3.6 4.59v4.72z"/></svg>
+        </a>
+        <a href="https://x.com/AntonysrmNafi" target="_blank" rel="noopener noreferrer" title="X / Twitter" aria-label="X / Twitter">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="https://github.com/AntonysrmNafi" target="_blank" rel="noopener noreferrer" title="GitHub" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55v-1.93c-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.75 2.69 1.25 3.35.96.1-.75.4-1.25.73-1.54-2.55-.29-5.23-1.27-5.23-5.67 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.18-1.49 3.14-1.18 3.14-1.18.63 1.58.24 2.75.12 3.04.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.38-5.25 5.66.41.36.78 1.06.78 2.15v3.19c0 .3.21.66.79.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+        </a>
+        <a href="https://t.me/Antonysrm" target="_blank" rel="noopener noreferrer" title="Telegram" aria-label="Telegram">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+        </a>
+        <a href="https://mastodon.social/@Antonysrm" target="_blank" rel="noopener noreferrer" title="Mastodon" aria-label="Mastodon">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.268 5.313c-.35-2.578-2.617-4.61-5.304-5.004C17.51.242 15.792 0 11.813 0h-.03c-3.98 0-4.835.242-5.288.309C3.882.692 1.496 2.518.917 5.127.64 6.412.61 7.837.661 9.143c.074 1.874.088 3.745.26 5.611.118 1.24.325 2.47.62 3.68.55 2.237 2.777 4.098 4.96 4.857 2.336.792 4.849.923 7.256.38.265-.061.527-.132.786-.213.585-.184 1.27-.39 1.774-.753a.057.057 0 0 0 .023-.043v-1.809a.052.052 0 0 0-.02-.041.053.053 0 0 0-.046-.01 20.282 20.282 0 0 1-4.709.545c-2.73 0-3.463-1.284-3.674-1.818a5.593 5.593 0 0 1-.319-1.433.053.053 0 0 1 .066-.054c1.517.363 3.072.546 4.632.546.376 0 .75 0 1.125-.01 1.57-.044 3.224-.124 4.768-.422.038-.008.077-.015.11-.024 2.435-.464 4.753-1.92 4.989-5.604.008-.145.03-1.52.03-1.67.002-.512.167-3.63-.024-5.545zm-3.748 9.195h-2.561V8.29c0-1.309-.55-1.976-1.67-1.976-1.23 0-1.846.79-1.846 2.35v3.403h-2.546V8.663c0-1.56-.617-2.35-1.848-2.35-1.112 0-1.668.668-1.67 1.977v6.218H4.822V8.102c0-1.31.337-2.35 1.011-3.12.696-.77 1.608-1.164 2.74-1.164 1.311 0 2.302.5 2.962 1.498l.638 1.06.638-1.06c.66-.999 1.65-1.498 2.96-1.498 1.13 0 2.043.395 2.74 1.164.675.77 1.012 1.81 1.012 3.12z"/></svg>
+        </a>
+        <a href="mailto:antonysrm@tutamail.com" title="Email" aria-label="Email">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z" opacity="0"/><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg>
+        </a>
+        <a href="support" title="Support my work" aria-label="Support my work">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+<script>
+  // ============ Skills stack accordion ============
+  document.querySelectorAll('.stack-trigger').forEach(function(button) {
+    button.addEventListener('click', function() {
+      var expanded = button.getAttribute('aria-expanded') === 'true';
+      button.setAttribute('aria-expanded', String(!expanded));
+    });
+  });
+
+  // Check user motion preference once, reuse everywhere
+  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ============ Hero role typewriter effect ============
+  var roles = [
+    'Full Stack Developer',
+    'Blockchain Developer',
+    'Smart Contract Engineer',
+    'CEO of BlockVeil',
+    'Entrepreneur'
+  ];
+  var roleEl = document.getElementById('heroRole');
+
+  if (prefersReducedMotion) {
+    // Skip animation, just show the first role as static text
+    roleEl.textContent = roles[0];
+  } else {
+    var roleIndex = 0;
+    var charIndex = 0;
+    var deleting = false;
+
+    function typeLoop() {
+      var current = roles[roleIndex];
+
+      if (!deleting) {
+        charIndex++;
+        if (charIndex > current.length) {
+          deleting = true;
+          setTimeout(typeLoop, 1200); // pause before deleting
+          return;
+        }
+      } else {
+        charIndex--;
+        if (charIndex < 0) {
+          deleting = false;
+          roleIndex = (roleIndex + 1) % roles.length;
+          charIndex = 0;
+        }
+      }
+
+      roleEl.innerHTML = current.slice(0, charIndex) + '<span class="cursor">&nbsp;</span>';
+      setTimeout(typeLoop, deleting ? 40 : 80);
+    }
+
+    typeLoop();
+  }
+
+  // ============ Active chain-nav link on scroll ============
+  var sections = document.querySelectorAll('main section[id]');
+  var chainLinks = document.querySelectorAll('.chain__link');
+
+  function setActiveLink(id) {
+    chainLinks.forEach(function (link) {
+      link.classList.toggle('is-active', link.dataset.section === id);
+    });
+  }
+
+  var navObserver = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        setActiveLink(entry.target.id);
+      }
+    });
+  }, {
+    // Trigger when a section is near the top of the viewport, just under the nav
+    rootMargin: '-40% 0px -55% 0px'
+  });
+
+  sections.forEach(function (section) {
+    navObserver.observe(section);
+  });
+
+  // Mark section eyebrows/headings for the lighter fade-in variant.
+  // Footer social icons are intentionally NOT part of this system:
+  // they're the very last element on the page, and scroll-based reveal
+  // for a final, near-the-fold element is the highest-risk case for a
+  // missed trigger. They're always visible by default instead.
+  document.querySelectorAll('.section .eyebrow, .section h2').forEach(function (el) {
+    el.classList.add('reveal-fade');
+  });
+
+  // ============ Scroll reveal + GSAP animation system ============
+  if (prefersReducedMotion || typeof gsap === 'undefined') {
+    // Fallback: show everything immediately, skip all motion extras
+    document.querySelectorAll('.reveal, .reveal-fade').forEach(function (el) {
+      el.classList.add('is-visible');
+    });
+    document.querySelectorAll('.reveal > .block-card, .reveal > .timeline__item, .reveal > .stack-layer').forEach(function (el) {
+      el.classList.add('is-visible');
+    });
+  } else {
+    gsap.registerPlugin(ScrollTrigger);
+
+    var isTouch = window.matchMedia('(hover: none)').matches || window.matchMedia('(max-width: 860px)').matches;
+
+    // ---- Custom cursor (dot + lagging ring) ----
+    if (!isTouch) {
+      document.body.classList.add('has-custom-cursor');
+      var cursorDot = document.querySelector('.cursor-dot');
+      var cursorRing = document.querySelector('.cursor-ring');
+      var mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+
+      window.addEventListener('mousemove', function (e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        gsap.set(cursorDot, { x: mouseX, y: mouseY });
+      });
+
+      // Ring eases toward the pointer on every frame for a trailing feel
+      gsap.ticker.add(function () {
+        gsap.to(cursorRing, { x: mouseX, y: mouseY, duration: 0.4, ease: 'power3.out', overwrite: 'auto' });
+      });
+
+      // Ring grows on hoverable elements
+      document.querySelectorAll('a, button').forEach(function (el) {
+        el.addEventListener('mouseenter', function () { cursorRing.classList.add('is-active'); });
+        el.addEventListener('mouseleave', function () { cursorRing.classList.remove('is-active'); });
+      });
+
+      document.addEventListener('mouseleave', function () {
+        gsap.to([cursorDot, cursorRing], { opacity: 0, duration: 0.2 });
+      });
+      document.addEventListener('mouseenter', function () {
+        gsap.to([cursorDot, cursorRing], { opacity: 1, duration: 0.2 });
+      });
+    }
+
+    // ---- Magnetic buttons: pull toward the pointer within a small radius ----
+    if (!isTouch) {
+      document.querySelectorAll('.magnetic').forEach(function (el) {
+        var strength = 0.35;
+        el.addEventListener('mousemove', function (e) {
+          var rect = el.getBoundingClientRect();
+          var relX = e.clientX - rect.left - rect.width / 2;
+          var relY = e.clientY - rect.top - rect.height / 2;
+          gsap.to(el, { x: relX * strength, y: relY * strength, duration: 0.4, ease: 'power3.out' });
+        });
+        el.addEventListener('mouseleave', function () {
+          gsap.to(el, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.4)' });
+        });
+      });
+    } else {
+      // Touch equivalent: there's no pointer to "pull" toward, so instead
+      // give a satisfying squeeze-and-release pulse on tap, using the same
+      // elastic easing as the desktop release for a matching feel.
+      document.querySelectorAll('.magnetic').forEach(function (el) {
+        el.addEventListener('touchstart', function () {
+          gsap.to(el, { scale: 0.94, duration: 0.15, ease: 'power2.out' });
+        }, { passive: true });
+        el.addEventListener('touchend', function () {
+          gsap.to(el, { scale: 1, duration: 0.5, ease: 'elastic.out(1, 0.4)' });
+        }, { passive: true });
+      });
+    }
+
+    // ---- Card tilt + glow on project/stack cards ----
+    if (!isTouch) {
+      document.querySelectorAll('.block-card').forEach(function (card) {
+        card.addEventListener('mousemove', function (e) {
+          var rect = card.getBoundingClientRect();
+          var px = (e.clientX - rect.left) / rect.width - 0.5;
+          var py = (e.clientY - rect.top) / rect.height - 0.5;
+          gsap.to(card, {
+            rotateY: px * 6,
+            rotateX: py * -6,
+            transformPerspective: 600,
+            duration: 0.4,
+            ease: 'power2.out'
+          });
+        });
+        card.addEventListener('mouseleave', function () {
+          gsap.to(card, { rotateX: 0, rotateY: 0, duration: 0.6, ease: 'power3.out' });
+        });
+      });
+    }
+
+    // ---- Hero entrance: staggered, runs once on load (no scroll dependency, always fires) ----
+    gsap.from('.hero h1', { opacity: 0, y: 24, duration: 0.7, ease: 'power3.out' });
+    gsap.from('.hero__role', { opacity: 0, y: 16, duration: 0.6, delay: 0.12, ease: 'power3.out' });
+    gsap.from('.hero__lede', { opacity: 0, y: 16, duration: 0.6, delay: 0.2, ease: 'power3.out' });
+    gsap.from('.hero__actions .magnetic', { opacity: 0, y: 16, duration: 0.6, delay: 0.28, stagger: 0.1, ease: 'power3.out' });
+
+    // ---- Premium parallax depth (scrub-based, position only, never touches
+    // opacity) ----
+    // Using "scrub: true" ties the animation directly to scroll position
+    // instead of a one-time enter/exit trigger, so there's no "did it fire"
+    // risk like the old opacity reveals had. Applied only to the purely
+    // decorative ambient blobs, which have no opacity/reveal logic of their
+    // own to conflict with (unlike headings, which already use the
+    // .reveal-fade CSS-transition system and must not get a second,
+    // competing transform source). Scroll position exists on every device,
+    // so unlike cursor/magnetic/tilt this is NOT gated behind isTouch:
+    // phone users get the same drifting depth effect as desktop.
+    gsap.to('.ambient__blob--1', {
+      y: '20vh',
+      ease: 'none',
+      scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom bottom', scrub: true }
+    });
+    gsap.to('.ambient__blob--2', {
+      y: '-15vh',
+      ease: 'none',
+      scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom bottom', scrub: true }
+    });
+    gsap.to('.ambient__blob--3', {
+      y: '10vh',
+      x: '-4vw',
+      ease: 'none',
+      scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom bottom', scrub: true }
+    });
+
+    // ---- Scroll reveals: plain CSS class toggle via IntersectionObserver ----
+    // Deliberately NOT using GSAP/ScrollTrigger opacity tweens here: those
+    // depend on trigger math that can miscalculate on some pages (especially
+    // short final sections or file:// pages), leaving content stuck at
+    // opacity 0. IntersectionObserver + a CSS class is simpler and can't
+    // get stuck: the moment an element is observed as visible, it gets the
+    // class, and the CSS transition (defined in .reveal / .is-visible) handles
+    // the actual fade.
+    var revealTargets = document.querySelectorAll('.reveal, .reveal-fade');
+
+    var revealObserver = new IntersectionObserver(function (entries, observer) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+
+          // Stagger direct meaningful children for grid/list containers
+          var children = entry.target.querySelectorAll(':scope > .block-card, :scope > .timeline__item, :scope > .stack-layer');
+          children.forEach(function (child, i) {
+            child.style.transitionDelay = (i * 90) + 'ms';
+            child.classList.add('is-visible');
+          });
+
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    revealTargets.forEach(function (el) { revealObserver.observe(el); });
+  }
+</script>
+
+</body>
+</html>
