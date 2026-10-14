@@ -1,0 +1,16 @@
+{
+  "name": "portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal portfolio site (static HTML, CSS and TypeScript).",
+  "scripts": {
+    "typecheck": "tsc",
+    "bundle": "esbuild ts/no-js.ts ts/main.ts --bundle --format=iife --target=es2018 --outdir=js && esbuild support/ts/support.ts --bundle --format=iife --target=es2018 --outdir=support/js",
+    "build": "npm run typecheck && npm run bundle",
+    "watch": "esbuild ts/no-js.ts ts/main.ts --bundle --format=iife --target=es2018 --outdir=js --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.0",
+    "typescript": "^6.0.0"
+  }
+}
