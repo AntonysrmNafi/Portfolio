@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://antonysrmnafi.github.io/Portfolio/sitemap.xml
