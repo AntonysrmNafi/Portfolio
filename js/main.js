@@ -220,6 +220,14 @@
     gsap.to(".ambient__blob--2", { y: "-15vh", ease: "none", scrollTrigger });
     gsap.to(".ambient__blob--3", { y: "10vh", x: "-4vw", ease: "none", scrollTrigger });
   }
+  function clearDelayAfterReveal(el) {
+    const onEnd = (e) => {
+      if (e.target !== el || e.propertyName !== "opacity") return;
+      el.style.transitionDelay = "";
+      el.removeEventListener("transitionend", onEnd);
+    };
+    el.addEventListener("transitionend", onEnd);
+  }
   function initScrollReveal() {
     const revealObserver = new IntersectionObserver(
       (entries, observer) => {
@@ -229,6 +237,7 @@
           entry.target.querySelectorAll(STAGGER_CHILDREN_SELECTOR).forEach((child, i) => {
             child.style.transitionDelay = `${i * 90}ms`;
             child.classList.add("is-visible");
+            clearDelayAfterReveal(child);
           });
           observer.unobserve(entry.target);
         });

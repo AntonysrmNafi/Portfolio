@@ -122,6 +122,18 @@ function initParallax(): void {
   gsap.to('.ambient__blob--3', { y: '10vh', x: '-4vw', ease: 'none', scrollTrigger });
 }
 
+// The stagger delay is only meant for the entrance. Left in place it would also delay every later
+// hover or tilt transition, so card #4 would react 270ms after card #1. Remove it once the reveal
+// has finished so all siblings behave identically afterwards.
+function clearDelayAfterReveal(el: HTMLElement): void {
+  const onEnd = (e: TransitionEvent): void => {
+    if (e.target !== el || e.propertyName !== 'opacity') return;
+    el.style.transitionDelay = '';
+    el.removeEventListener('transitionend', onEnd);
+  };
+  el.addEventListener('transitionend', onEnd);
+}
+
 // Scroll reveals use a plain CSS class toggle through IntersectionObserver instead of GSAP opacity
 // tweens. Trigger math can miscalculate on short final sections or file:// pages and leave content
 // stuck at opacity 0, while an observed element reliably gets its class and the CSS transition runs.
@@ -137,6 +149,7 @@ function initScrollReveal(): void {
         entry.target.querySelectorAll<HTMLElement>(STAGGER_CHILDREN_SELECTOR).forEach((child, i) => {
           child.style.transitionDelay = `${i * 90}ms`;
           child.classList.add('is-visible');
+          clearDelayAfterReveal(child);
         });
 
         observer.unobserve(entry.target);
