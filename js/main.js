@@ -220,13 +220,13 @@
     gsap.to(".ambient__blob--2", { y: "-15vh", ease: "none", scrollTrigger });
     gsap.to(".ambient__blob--3", { y: "10vh", x: "-4vw", ease: "none", scrollTrigger });
   }
-  function clearDelayAfterReveal(el) {
-    const onEnd = (e) => {
-      if (e.target !== el || e.propertyName !== "opacity") return;
-      el.style.transitionDelay = "";
-      el.removeEventListener("transitionend", onEnd);
-    };
-    el.addEventListener("transitionend", onEnd);
+  var REVEAL_DURATION_MS = 550;
+  var STAGGER_STEP_MS = 90;
+  function revealWithStagger(el, index) {
+    const delay = index * STAGGER_STEP_MS;
+    el.style.setProperty("--reveal-delay", `${delay}ms`);
+    el.classList.add("is-visible");
+    window.setTimeout(() => el.style.removeProperty("--reveal-delay"), delay + REVEAL_DURATION_MS + 100);
   }
   function initScrollReveal() {
     const revealObserver = new IntersectionObserver(
@@ -235,9 +235,7 @@
           if (!entry.isIntersecting) return;
           entry.target.classList.add("is-visible");
           entry.target.querySelectorAll(STAGGER_CHILDREN_SELECTOR).forEach((child, i) => {
-            child.style.transitionDelay = `${i * 90}ms`;
-            child.classList.add("is-visible");
-            clearDelayAfterReveal(child);
+            revealWithStagger(child, i);
           });
           observer.unobserve(entry.target);
         });

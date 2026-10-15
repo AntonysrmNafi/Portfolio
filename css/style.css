@@ -964,13 +964,13 @@ footer{
 }
 
 /* Staggered children inside a .reveal container (cards, timeline items,
-   skill layers); JS adds is-visible + a per-item transition-delay */
+   skill layers); JS adds is-visible + a temporary --reveal-delay */
 .reveal > .block-card,
 .reveal > .timeline__item,
 .reveal > .stack-layer{
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 550ms ease, transform 550ms ease;
+  transition: opacity 550ms ease var(--reveal-delay, 0ms), transform 550ms ease var(--reveal-delay, 0ms);
 }
 .reveal > .block-card.is-visible,
 .reveal > .timeline__item.is-visible,
