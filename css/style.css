@@ -1007,7 +1007,7 @@ footer{
 }
 
 /* ============ UTILITIES (replace former inline style attributes) ============ */
-.stack-hint {
+.section-hint {
   color: var(--ink-soft);
   margin-bottom: 32px;
   max-width: 60ch;
